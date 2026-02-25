@@ -64,3 +64,51 @@ class Match(models.Model):
     
     def __str__(self):
         return f"{self.match_ref}: {self.teams} - {self.selection}"
+    
+
+class Balance(models.Model):
+    """
+    Model to store account balance
+    """
+    id = models.AutoField(primary_key=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=10, default='TSh')
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Balance"
+        verbose_name_plural = "Balances"
+    
+    def __str__(self):
+        return f"{self.amount} {self.currency}"
+
+
+
+class MatchFixture(models.Model):
+    """
+    Model for match fixtures (different from bet matches)
+    """
+    eventId = models.IntegerField(unique=True)
+    time = models.TimeField()
+    date = models.DateField()
+    homeTeam = models.CharField(max_length=100)
+    awayTeam = models.CharField(max_length=100)
+    league = models.CharField(max_length=200)
+    homeOdds = models.DecimalField(max_digits=10, decimal_places=2)  # Hii ni Decimal
+    drawOdds = models.DecimalField(max_digits=10, decimal_places=2)  # Hii ni Decimal
+    awayOdds = models.DecimalField(max_digits=10, decimal_places=2)  # Hii ni Decimal
+    homeOddsFire = models.BooleanField(default=False)  # New field for fire icon
+    drawOddsFire = models.BooleanField(default=False)  # New field for fire icon
+    awayOddsFire = models.BooleanField(default=False)  # New field for fire icon
+    betCount = models.IntegerField(default=0)
+    hasBoostedOdds = models.BooleanField(default=False)
+    hasTwoUp = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['date', 'time']
+    
+    def __str__(self):
+        return f"{self.homeTeam} vs {self.awayTeam} - {self.league}"

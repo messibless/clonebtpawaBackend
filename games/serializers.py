@@ -19,13 +19,14 @@ class GameResponseSerializer(serializers.ModelSerializer):
     time = serializers.SerializerMethodField()
     date = serializers.SerializerMethodField()
     result = serializers.CharField(default='WON')
-    payout = serializers.SerializerMethodField()  # Badilisha kuwa SerializerMethodField
+    payout = serializers.SerializerMethodField()
     details = serializers.SerializerMethodField()
+    status = serializers.CharField()  # 🔥 ONGEZA HII - status field
     
     class Meta:
         model = Game
         fields = ['id', 'time', 'date', 'result', 'stake', 'odds', 
-                 'payout', 'currency', 'details']
+                 'payout', 'currency', 'status', 'details']  # 🔥 ONGEZA 'status' hapa
     
     def get_time(self, obj):
         return obj.time.strftime("%I:%M %p").lower().lstrip('0')
@@ -70,7 +71,7 @@ class CreateBetSerializer(serializers.Serializer):
         # Set active_until (kwa mfano, siku 7 kutoka sasa)
         active_until = timezone.now() + timezone.timedelta(days=7)
         
-        # Create game
+        # Create game - tumia 'OPEN' badala ya 'WAITING' (kulingana na model yako)
         game = Game.objects.create(
             stake=validated_data['stake'],
             odds=total_odds,
@@ -78,15 +79,16 @@ class CreateBetSerializer(serializers.Serializer):
             active_until=active_until,
             bet_type='Accumulator',
             total_odds=total_odds,
-            result='WON',  # Weka WON kwa mfano huu
-            payout=None  # Tutahesabu kwenye serializer
+            result='PENDING',  # Weka PENDING instead of WON
+            status='OPEN',  # 🔥 ONGEZA HII - status inapaswa kuwa 'OPEN' not 'WAITING'
+            payout=None
         )
         
         # Create matches
         for match_data in matches_data:
             Match.objects.create(
                 game=game,
-                match_ref=match_data['id'],  # "M001", "M002" zinaingia hapa
+                match_ref=match_data['id'],
                 teams=match_data['teams'],
                 market=match_data['market'],
                 selection=match_data['selection'],

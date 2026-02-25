@@ -44,7 +44,7 @@ class BetCRUDView(APIView):
         
         # Apply filters
         if status_filter:
-            if status_filter.upper() in ['WAITING', 'SETTLED', 'CANCELLED']:
+            if status_filter.upper() in ['OPEN', 'SETTLED']:
                 games = games.filter(status=status_filter.upper())
         
         # Apply limit
@@ -172,8 +172,8 @@ class BetApproveView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Check if game can be settled
-        if game.status != 'WAITING':
+        # Check if game can be settled - using 'OPEN' from model
+        if game.status != 'OPEN':
             return Response({
                 'error': f'Game cannot be settled. Current status: {game.status}'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -214,9 +214,9 @@ class BetFilterView(APIView):
     
     def get(self, request):
         """Get filtered bets"""
-        # Get all active (waiting) games
+        # Get all active (OPEN) games
         active_games = Game.objects.filter(
-            status='WAITING', 
+            status='OPEN', 
             active_until__gte=timezone.now()
         ).order_by('-created_at')
         
@@ -263,10 +263,10 @@ class MatchCRUDView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Check if game can be modified
-        if game.status != 'WAITING':
+        # Check if game can be modified - using 'OPEN'
+        if game.status != 'OPEN':
             return Response({
-                'error': 'Cannot add matches to a settled or cancelled game'
+                'error': 'Cannot add matches to a settled game'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = MatchSerializer(data=request.data)
@@ -300,10 +300,10 @@ class MatchCRUDView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Check if game can be modified
-        if match.game.status != 'WAITING':
+        # Check if game can be modified - using 'OPEN'
+        if match.game.status != 'OPEN':
             return Response({
-                'error': 'Cannot update matches of a settled or cancelled game'
+                'error': 'Cannot update matches of a settled game'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = MatchSerializer(match, data=request.data)
@@ -337,10 +337,10 @@ class MatchCRUDView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Check if game can be modified
-        if match.game.status != 'WAITING':
+        # Check if game can be modified - using 'OPEN'
+        if match.game.status != 'OPEN':
             return Response({
-                'error': 'Cannot delete matches from a settled or cancelled game'
+                'error': 'Cannot delete matches from a settled game'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         game = match.game

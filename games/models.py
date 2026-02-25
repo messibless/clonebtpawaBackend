@@ -9,9 +9,8 @@ def generate_game_id():
 
 class Game(models.Model):
     GAME_STATUS = (
-        ('WAITING', 'Waiting'),
+        ('OPEN', 'Open'),
         ('SETTLED', 'Settled'),
-        ('CANCELLED', 'Cancelled'),
     )
     
     RESULT_CHOICES = (
@@ -28,7 +27,7 @@ class Game(models.Model):
     odds = models.DecimalField(max_digits=10, decimal_places=2)
     payout = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     currency = models.CharField(max_length=10, default='TSh')
-    status = models.CharField(max_length=10, choices=GAME_STATUS, default='WAITING')
+    status = models.CharField(max_length=10, choices=GAME_STATUS, default='OPEN')
     active_until = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     settled_at = models.DateTimeField(null=True, blank=True)
@@ -48,7 +47,7 @@ class Game(models.Model):
         self.save()
     
     def is_active(self):
-        return self.status == 'WAITING' and timezone.now() <= self.active_until
+        return self.status == 'OPEN' and timezone.now() <= self.active_until
 
 class Match(models.Model):
     # Badilisha hii - tumia AutoField kwa database ID

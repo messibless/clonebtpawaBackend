@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-wd%snxalyk=e1%40a8f09la@=$j_ls6qm=vz-2kcc!fd=+98uy
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Moja tu!
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '38.242.233.242', 'betpaw.co.tz', 'www.betpaw.co.tz']
 
 # Application definition
 INSTALLED_APPS = [

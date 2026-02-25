@@ -1,9 +1,12 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     # Badilisha hii - tumia BetCRUDView badala ya CreateBetView
     path('bets/', views.BetCRUDView.as_view(), name='bet-crud'),
+    path('health/', views.health_check, name='health-check'),
+
     
     # Hizi ni sawa
     path('bets/<str:game_id>/', views.BetDetailView.as_view(), name='bet-detail'),

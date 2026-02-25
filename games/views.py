@@ -7,7 +7,10 @@ from .serializers import CreateBetSerializer,BalanceSerializer, GameResponseSeri
 
 
 
+from django.http import JsonResponse
 
+def health_check(request):
+    return JsonResponse({"status": "healthy", "message": "API is running"})
 class BetCRUDView(APIView):
     """
     CRUD operations for Bets using APIView

@@ -85,6 +85,10 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "https://betpaw.co.tz",           # 🔥 Vue app
+    "https://admin.betpaw.co.tz",      # 🔥 React app (kama unatumia subdomain)
+    # au kama unatumia path /admin
+    "https://betpaw.co.tz",            # 🔥 Hii inatosha kwa path
 ]
 
 CORS_ALLOW_HEADERS = [

@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -17,15 +17,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
-
       - name: Deploy to Server via Rsync
         uses: burnett01/rsync-deployments@5.2
         with:
           switches: -avzr --delete --exclude='.env' --exclude='*.pyc' --exclude='__pycache__' --exclude='db.sqlite3' --exclude='.git'
-          path: ./
+          path: ./  # entire project folder
           remote_path: /var/www/betpawa-backend/
           remote_host: ${{ secrets.SERVER_HOST }}
           remote_user: ${{ secrets.SERVER_USER }}
@@ -39,20 +35,30 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /var/www/betpawa-backend
-            
-            # Virtual Environment
+
+            # 🔹 Create virtual environment if it doesn't exist
             if [ ! -d "venv" ]; then
+              echo "Creating virtual environment..."
               python3 -m venv venv
             fi
+
+            # 🔹 Activate virtual environment
             source venv/bin/activate
-            
-            # Install/Update
+
+            # 🔹 Upgrade pip just in case
+            pip install --upgrade pip
+
+            # 🔹 Install/Update dependencies
             pip install -r requirements.txt
+
+            # 🔹 Run migrations
             python manage.py migrate --noinput
+
+            # 🔹 Collect static files
             python manage.py collectstatic --noinput
-            
-            # Restart Services
+
+            # 🔹 Restart services
             sudo systemctl restart gunicorn || true
             sudo systemctl reload nginx || true
-            
-            echo "✅ Deployment completed!"
+
+            echo "✅ Deployment completed with venv successfully!"

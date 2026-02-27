@@ -84,7 +84,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5174",
+    "http://127.0.0.1:5173",
     "https://betpaw.co.tz",           # 🔥 Vue app
     "https://admin.betpaw.co.tz",      # 🔥 React app (kama unatumia subdomain)
     # au kama unatumia path /admin
@@ -118,8 +118,8 @@ CORS_EXPOSE_HEADERS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5174',
-    'http://127.0.0.1:5174',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
 ]
 
 # Internationalization

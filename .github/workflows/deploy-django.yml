@@ -21,7 +21,7 @@ jobs:
         uses: burnett01/rsync-deployments@5.2
         with:
           switches: -avzr --exclude='.env' --exclude='*.pyc' --exclude='__pycache__' --exclude='db.sqlite3' --exclude='.git' --exclude='venv'
-          path: ./  # entire project folder
+          path: ./
           remote_path: /var/www/betpawa-backend/
           remote_host: ${{ secrets.SERVER_HOST }}
           remote_user: ${{ secrets.SERVER_USER }}
@@ -34,31 +34,30 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
+
             cd /var/www/betpawa-backend
 
-            # 🔹 Create virtual environment if it doesn't exist
-            if [ ! -d "venv" ]; then
-              echo "Creating virtual environment..."
-              python3 -m venv venv
-            fi
+            echo "🔄 Rebuilding virtual environment..."
 
-            # 🔹 Activate virtual environment
+            # 🔥 ALWAYS rebuild venv fresh
+            rm -rf venv
+            python3 -m venv venv
+
             source venv/bin/activate
 
-            # 🔹 Upgrade pip just in case
             pip install --upgrade pip
-
-            # 🔹 Install/Update dependencies
             pip install -r requirements.txt
 
-            # 🔹 Run migrations
+            echo "📦 Running migrations..."
             python manage.py migrate --noinput
 
-            # 🔹 Collect static files
+            echo "📁 Collecting static..."
             python manage.py collectstatic --noinput
 
-            # 🔹 Restart services
-            sudo systemctl restart gunicorn || true
+            echo "🚀 Reloading services..."
+            sudo systemctl daemon-reload
+            sudo systemctl reload gunicorn || sudo systemctl restart gunicorn
             sudo systemctl reload nginx || true
 
-            echo "✅ Deployment completed with venv successfully!"
+            echo "✅ Deployment completed successfully!"

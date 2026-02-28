@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'games',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'effootball'
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+     "http://localhost:5175",
+    "http://127.0.0.1:5175",
     "https://betpaw.co.tz",           # 🔥 Vue app
     "https://admin.betpaw.co.tz",      # 🔥 React app (kama unatumia subdomain)
     # au kama unatumia path /admin
@@ -120,6 +123,8 @@ CORS_EXPOSE_HEADERS = [
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+     "http://localhost:5175",
+    "http://127.0.0.1:5175",
 ]
 
 # Internationalization

@@ -112,6 +112,8 @@ class CreateBetSerializer(serializers.Serializer):
             )
         
         return game
+    
+
 class MatchFixtureSerializer(serializers.ModelSerializer):
     # These fields handle the actual DB values
     # We make them 'write_only' so they don't interfere with our custom output
@@ -163,3 +165,14 @@ class MatchFixtureSerializer(serializers.ModelSerializer):
                 mutable_data[f'{field}_val'] = val
 
         return super().to_internal_value(mutable_data)
+    
+
+
+
+
+
+
+
+
+
+ 

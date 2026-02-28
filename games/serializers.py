@@ -63,56 +63,45 @@ class GameResponseSerializer(serializers.ModelSerializer):
             'betType': obj.bet_type,
             'totalOdds': float(obj.total_odds)
         }
+class MatchNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Match
+        fields = ['match_ref', 'teams', 'market', 'selection', 'odds']
 
-class CreateBetSerializer(serializers.Serializer):
-    stake = serializers.DecimalField(max_digits=10, decimal_places=2)
-    currency = serializers.CharField(max_length=10, default='TSh')
-    matches = serializers.ListField(child=serializers.DictField(), write_only=True)
-    
-    def validate_matches(self, value):
-        if not value:
-            raise serializers.ValidationError("At least one match is required")
-        return value
-    
+class CreateBetSerializer(serializers.ModelSerializer):
+    matches = MatchNestedSerializer(many=True, required=False)
+
+    class Meta:
+        model = Game
+        fields = ['id', 'stake', 'currency', 'total_odds', 'odds', 'bet_type', 'status', 'result', 'matches']
+        read_only_fields = ['id', 'total_odds', 'odds', 'status', 'result']
+
     def create(self, validated_data):
-        matches_data = validated_data.pop('matches')
-        
+        matches_data = validated_data.pop('matches', [])
         # Hesabu total odds
         total_odds = 1
         for match in matches_data:
             total_odds *= float(match['odds'])
-        
-        total_odds = round(total_odds, 2)
-        
-        # Set active_until (kwa mfano, siku 7 kutoka sasa)
-        active_until = timezone.now() + timezone.timedelta(days=7)
-        
-        # Create game - tumia 'OPEN' badala ya 'WAITING' (kulingana na model yako)
+
         game = Game.objects.create(
-            stake=validated_data['stake'],
-            odds=total_odds,
-            currency=validated_data['currency'],
-            active_until=active_until,
-            bet_type='Accumulator',
-            total_odds=total_odds,
-            result='PENDING',  # Weka PENDING instead of WON
-            status='OPEN',  # 🔥 ONGEZA HII - status inapaswa kuwa 'OPEN' not 'WAITING'
-            payout=None
+            **validated_data,
+            total_odds=round(total_odds, 2),
+            odds=round(total_odds, 2),
+            status='OPEN',
+            result='PENDING'
         )
-        
-        # Create matches
+
         for match_data in matches_data:
-            Match.objects.create(
-                game=game,
-                match_ref=match_data['id'],
-                teams=match_data['teams'],
-                market=match_data['market'],
-                selection=match_data['selection'],
-                odds=match_data['odds']
-            )
-        
+            Match.objects.create(game=game, **match_data)
+
         return game
-    
+
+    def update(self, instance, validated_data):
+        # Update stake na currency tu
+        instance.stake = validated_data.get('stake', instance.stake)
+        instance.currency = validated_data.get('currency', instance.currency)
+        instance.save()
+        return instance
 
 class MatchFixtureSerializer(serializers.ModelSerializer):
     # These fields handle the actual DB values
